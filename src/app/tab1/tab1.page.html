@@ -1,17 +1,268 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
+    <ion-title> Test </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
+      <ion-title size="large">Test</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+  <ion-card
+    *ngFor="let item of items; let i = index"
+    [class]="item.type+'-card'"
+  >
+    <ion-card-content>
+      <ion-item *ngIf="item.type === 'question'">
+        <ion-label style="white-space: normal">
+          <p>Soru</p>
+          <h3>{{ item.content }}</h3>
+        </ion-label>
+        <ion-icon
+          *ngIf="!isSpeaking"
+          name="caret-forward-circle-outline"
+          slot="start"
+          (click)="speakText(item.content)"
+        ></ion-icon>
+        <ion-icon
+          *ngIf="isSpeaking"
+          name="stop-circle-outline"
+          slot="start"
+          (click)="stopSpeaking()"
+        ></ion-icon>
+      </ion-item>
+      <ion-item *ngIf="item.type === 'answer'">
+        <ion-label style="white-space: normal">
+          <p>Cevap</p>
+          <h3>{{ item.content }}</h3>
+        </ion-label>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card
+    style="border-radius: 30px"
+    class="question-card"
+    *ngIf="!canFinishTest && !isPatientRegisterationModalOpen"
+  >
+    <ion-card-content>
+      <ion-item>
+        <ion-icon
+          name="checkmark-outline"
+          slot="end"
+          *ngIf="answer"
+          (click)="completeAnswer()"
+        ></ion-icon>
+        <ion-item>
+          <ion-label style="white-space: normal">
+            <p>Cevap</p>
+            <ion-input
+              [(ngModel)]="answer"
+              (keyup.enter)="completeAnswer()"
+            ></ion-input>
+          </ion-label>
+        </ion-item>
+        <!-- <ion-item>
+          <ion-label>
+            <p>Cevap</p>
+          </ion-label>
+          <ion-textarea
+            [(ngModel)]="answer"
+            (keyup.enter)="completeAnswer()"
+          ></ion-textarea>
+        </ion-item> -->
+        <ion-icon
+          name="mic"
+          slot="start"
+          (click)="startRecognition()"
+          *ngIf="!isRecording"
+        ></ion-icon>
+        <ion-icon
+          name="mic-off"
+          slot="start"
+          (click)="stopRecognition()"
+          *ngIf="isRecording"
+        ></ion-icon>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
 </ion-content>
+
+<ion-modal [isOpen]="isScoreModalOpen">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Skor</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="setOpen(false)" [strong]="true"
+            >Tamamla</ion-button
+          >
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <ion-item>Skor: {{score}}/{{maxScore}} </ion-item>
+      <ion-list-header>Analiz</ion-list-header>
+      <ion-list>
+        <ion-item *ngFor="let analyse of analyseList">
+          <ion-label>
+            <p>Answer: {{ analyse.answer }}</p>
+            <p>Correct Answer: {{ analyse.correctAnswer }}</p>
+            <p>Score Gain: {{ analyse.scoreGain }}</p>
+          </ion-label>
+          <ion-icon
+            name="close-outline"
+            slot="end"
+            color="danger"
+            *ngIf="analyse.scoreGain === 0"
+          ></ion-icon>
+          <ion-icon
+            name="checkmark-outline"
+            slot="end"
+            color="success"
+            *ngIf="analyse.scoreGain !== 0"
+          ></ion-icon>
+          <ion-icon
+            name="checkmark-outline"
+            slot="end"
+            color="warning"
+            *ngIf="analyse.scoreGain === .5"
+          ></ion-icon>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<ion-modal [isOpen]="isPatientRegisterationModalOpen" >
+  <ng-template>    
+    <ion-header>
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-button>Cancel</ion-button>
+        </ion-buttons>
+        <ion-title>Hasta Kayıt</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="completePatientRegisteration()" [strong]="true">Confirm</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <ion-list>
+        <ion-list-header>Forum</ion-list-header>
+        <ion-item>
+          <ion-label position="stacked">İsim</ion-label>
+          <ion-input
+            type="text"
+            placeholder="İsim"
+            [(ngModel)]="patient.name"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Soyisim</ion-label>
+          <ion-input
+            type="text"
+            placeholder="İsim"
+            [(ngModel)]="patient.surname"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Hasta Doğum Yılı</ion-label>
+          <ion-grid>
+            <ion-row>
+              <ion-col>
+                <ion-label position="stacked">Gün</ion-label>
+                <ion-input
+                  type="text"
+                  placeholder="0...31"                  
+                  formControlName="day"
+                ></ion-input>
+              </ion-col>
+              <ion-col>
+                <ion-label position="stacked">Ay</ion-label>
+                <ion-input
+                  type="text"
+                  placeholder="1...12"
+                  [(ngModel)]="patient.birthdate.month"
+                ></ion-input>
+              </ion-col>
+              <ion-col>
+                <ion-label position="stacked">Yıl</ion-label>
+                <ion-input
+                  type="text"
+                  placeholder="2024"
+                  [(ngModel)]="patient.birthdate.year"
+                ></ion-input>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Cinsiyet</ion-label>
+          <ion-grid>
+            <ion-row>
+              <ion-segment id="sex-picker" value="kadın">
+                <ion-segment-button value="kadın">
+                  <ion-label>Kadın</ion-label>
+                </ion-segment-button>
+                <ion-segment-button value="erkek">
+                  <ion-label>Erkek</ion-label>
+                </ion-segment-button>
+              </ion-segment>
+            </ion-row>
+          </ion-grid>
+        </ion-item>
+        <ion-button expand="block" color="danger"> İptal </ion-button>
+        <ion-button
+          expand="block"
+          color="success"
+          (click)="completePatientRegisteration()"
+        >
+          Hastayı Onayla
+        </ion-button>
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<ion-footer style="padding-top: 5%">
+  <ion-button
+    expand="block"
+    color="success"
+    shape="round"
+    size="large"
+    (click)="completeAnswer()"
+    *ngIf="!canFinishTest && answer !== ''"
+    [disabled]="answer === ''"
+    (keyup.enter)="completeAnswer()"
+  >
+    <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+    Sonraki Soru
+  </ion-button>
+  <ion-button
+    expand="block"
+    color="danger"
+    shape="round"
+    size="large"
+    *ngIf="answer === '' && !canFinishTest && !testFinished"
+    [disabled]="!canFinishTest && answer === ''"
+  >
+    <!-- <ion-icon slot="end" name="arrow-forward-outline"></ion-icon> -->
+    Sonraki Soru
+  </ion-button>
+  <ion-button
+    expand="block"
+    color="success"
+    shape="round"
+    size="large"
+    (click)="completeTest()"
+    (keyup.enter)="completeTest()"
+    *ngIf="canFinishTest && !testFinished"
+  >
+    <ion-icon slot="end" name="checkmark"></ion-icon>
+    Testi Tamamla
+  </ion-button>
+</ion-footer>
