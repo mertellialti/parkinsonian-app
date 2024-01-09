@@ -68,8 +68,3 @@ This project is licensed under the MIT License.
 Contact
 
 For any queries or feedback, please reach out me from social media or linkedin.
-
-css
-Copy code
-
-Feel free to modify this template according to your project's specific
