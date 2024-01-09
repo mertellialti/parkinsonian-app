@@ -32,10 +32,10 @@ npm install -g @angular/cli
 
 3. **Clone the Repository**
 ```bash
-git clone [your-repository-link]
+git clone https://github.com/mertellialti/parkinsonian-app
 ```
 ```bash
-cd [repository-name]
+cd parkinsonian-app
 ```
 
 4. Install Dependencies
