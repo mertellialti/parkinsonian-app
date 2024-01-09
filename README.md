@@ -21,12 +21,13 @@ Before you begin, ensure you have met the following requirements:
    Download and install Node.js from [Node.js official website](https://nodejs.org/).
 
 2. **Install Ionic CLI**
-   ```bash
-   npm install -g @ionic/cli
-   ```
+
+```bash
+npm install -g @ionic/cli
+```
    
 2. **Install Angular CLI**
-  ```bash
+```bash
 npm install -g @angular/cli
 ```
 
