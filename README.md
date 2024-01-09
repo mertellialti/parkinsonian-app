@@ -65,6 +65,6 @@ Contributions to this project are welcome but please contact me before contribut
 
 This project is licensed under the MIT License.
 
-Contact
+## Contact
 
 For any queries or feedback, please reach out me from social media or linkedin.
